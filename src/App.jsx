@@ -11,6 +11,7 @@ import ListingDetails from "./pages/ListingDetails";
 import MyLeases from "./pages/MyLeases";
 import PayRent from "./pages/PayRent";
 import LandlordDashboard from "./pages/LandlordDashboard";
+import PaymentHistory from "./pages/PaymentHistory";
 
 import ContractActions from "./components/ContractActions";
 
@@ -43,7 +44,7 @@ function App() {
     localStorage.setItem("listings", JSON.stringify(listings));
   }, [listings]);
 
-  // 🔗 Connect Wallet
+  // Connect Wallet
   async function handleConnect() {
     try {
       const data = await connectWallet();
@@ -58,7 +59,7 @@ function App() {
     }
   }
 
-  // ✍️ Sign Lease
+  // Sign Lease
   async function handleSign() {
     try {
       if (!contract) return alert("Connect wallet first");
@@ -77,7 +78,7 @@ function App() {
     }
   }
 
-  // 💰 Pay Rent
+  // Pay Rent + Save Payment History
   async function handlePay() {
     try {
       if (!contract) return alert("Connect wallet first");
@@ -86,7 +87,37 @@ function App() {
 
       await payRent(contract.target);
 
-      alert("Rent Paid!");
+      // Save payment history
+      const oldPayments = JSON.parse(
+        localStorage.getItem("paymentHistory") || "[]"
+      );
+
+      const newPayment = {
+        property: "Luxury Apartment",
+        amount: `${rent} BNB`,
+        date: new Date().toLocaleDateString(),
+        txHash: "TX-" + Date.now(),
+        status: "Success"
+      };
+
+      localStorage.setItem(
+        "paymentHistory",
+        JSON.stringify([...oldPayments, newPayment])
+      );
+
+      // Optional: update listing payment status
+      const updatedListings = listings.map((listing) => ({
+        ...listing,
+        paymentStatus: "Paid"
+      }));
+
+      setListings(updatedListings);
+      localStorage.setItem(
+        "listings",
+        JSON.stringify(updatedListings)
+      );
+
+      alert("Rent Paid Successfully!");
 
     } catch (err) {
       alert(err.message);
@@ -167,7 +198,13 @@ function App() {
             element={<PayRent />}
           />
 
-          {/* Landlord Dashboard */}
+          {/* Payment History */}
+          <Route
+            path="/payment-history"
+            element={<PaymentHistory />}
+          />
+
+          {/* Dashboard */}
           <Route
             path="/landlord"
             element={<LandlordDashboard />}
