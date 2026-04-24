@@ -18,38 +18,67 @@ function Listings({ listings }) {
   });
 
   return (
-    <div>
-      <h2 className="text-3xl font-bold mb-6">
+    <div className="max-w-6xl mx-auto">
+
+      <h1
+        className="mb-8"
+        style={{
+          fontFamily: "Georgia, serif",
+          fontSize: "42px",
+          fontWeight: "700",
+          color: "#2d1f16"
+        }}
+      >
         Property Listings
-      </h2>
+      </h1>
 
-      {/* Search + Filter */}
-      <div className="bg-white p-4 rounded-xl shadow mb-6">
-        <div className="grid md:grid-cols-2 gap-4">
+      {/* Premium Search + Filter */}
+      <div className="bg-white rounded-3xl shadow-lg border border-[#eadbc8] p-6 mb-8">
 
-          <input
-            type="text"
-            placeholder="Search by property title..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="border rounded-lg p-3"
-          />
+        <div className="grid md:grid-cols-2 gap-5">
 
-          <input
-            type="number"
-            placeholder="Max Rent (BNB)"
-            value={maxRent}
-            onChange={(e) => setMaxRent(e.target.value)}
-            className="border rounded-lg p-3"
-          />
+          <div>
+            <label className="block mb-2 font-medium text-[#4b2e1f]">
+              Search Property
+            </label>
+
+            <input
+              type="text"
+              placeholder="Search by property title..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="w-full border border-[#d8c3a5] rounded-xl p-4 focus:outline-none focus:ring-2 focus:ring-[#8B5E3C]"
+            />
+          </div>
+
+          <div>
+            <label className="block mb-2 font-medium text-[#4b2e1f]">
+              Maximum Rent
+            </label>
+
+            <input
+              type="number"
+              placeholder="Max Rent (BNB)"
+              value={maxRent}
+              onChange={(e) => setMaxRent(e.target.value)}
+              className="w-full border border-[#d8c3a5] rounded-xl p-4 focus:outline-none focus:ring-2 focus:ring-[#8B5E3C]"
+            />
+          </div>
 
         </div>
+
       </div>
 
       {/* Results */}
       {filteredListings.length === 0 ? (
-        <div className="text-gray-500">
-          No matching listings found
+        <div className="bg-white rounded-3xl p-10 shadow-md text-center border border-[#eadbc8]">
+          <h2 className="text-2xl font-semibold text-[#4b2e1f] mb-2">
+            No Matching Listings Found
+          </h2>
+
+          <p className="text-gray-500">
+            Try changing your search or rent filter.
+          </p>
         </div>
       ) : (
         <div className="grid md:grid-cols-2 gap-6">
@@ -61,6 +90,7 @@ function Listings({ listings }) {
           ))}
         </div>
       )}
+
     </div>
   );
 }

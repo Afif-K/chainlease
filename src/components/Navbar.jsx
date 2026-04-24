@@ -1,6 +1,9 @@
 import { Link } from "react-router-dom";
 
 function Navbar() {
+  const userRole =
+    localStorage.getItem("userRole") || "";
+
   return (
     <header className="sticky top-0 z-50 bg-[#f8f3ed] shadow-lg rounded-[28px] mb-8 border border-[#eadbc8]">
       <div className="max-w-7xl mx-auto px-8 py-5 flex flex-col md:flex-row md:items-center md:justify-between gap-5">
@@ -45,6 +48,7 @@ function Navbar() {
           }}
         >
 
+          {/* Home */}
           <Link
             to="/"
             className="text-[#4b2e1f] font-medium hover:text-[#8B5E3C] transition cursor-pointer"
@@ -52,6 +56,7 @@ function Navbar() {
             Home
           </Link>
 
+          {/* Listings */}
           <Link
             to="/listings"
             className="text-[#4b2e1f] font-medium hover:text-[#8B5E3C] transition cursor-pointer"
@@ -59,26 +64,50 @@ function Navbar() {
             Listings
           </Link>
 
-          <Link
-            to="/create"
-            className="text-[#4b2e1f] font-medium hover:text-[#8B5E3C] transition cursor-pointer"
-          >
-            Create Listing
-          </Link>
+          {/* Landlord Only */}
+          {userRole === "landlord" && (
+            <>
+              <Link
+                to="/create"
+                className="text-[#4b2e1f] font-medium hover:text-[#8B5E3C] transition cursor-pointer"
+              >
+                Create Listing
+              </Link>
 
-          <Link
-            to="/my-leases"
-            className="text-[#4b2e1f] font-medium hover:text-[#8B5E3C] transition cursor-pointer"
-          >
-            My Leases
-          </Link>
+              <Link
+                to="/landlord"
+                className="text-[#4b2e1f] font-medium hover:text-[#8B5E3C] transition cursor-pointer"
+              >
+                Dashboard
+              </Link>
+            </>
+          )}
 
-          <Link
-            to="/landlord"
-            className="text-[#4b2e1f] font-medium hover:text-[#8B5E3C] transition cursor-pointer"
-          >
-            Dashboard
-          </Link>
+          {/* Tenant Only */}
+          {userRole === "tenant" && (
+            <>
+              <Link
+                to="/my-leases"
+                className="text-[#4b2e1f] font-medium hover:text-[#8B5E3C] transition cursor-pointer"
+              >
+                My Leases
+              </Link>
+
+              <Link
+                to="/pay"
+                className="text-[#4b2e1f] font-medium hover:text-[#8B5E3C] transition cursor-pointer"
+              >
+                Pay Rent
+              </Link>
+
+              <Link
+                to="/payment-history"
+                className="text-[#4b2e1f] font-medium hover:text-[#8B5E3C] transition cursor-pointer"
+              >
+                Payment History
+              </Link>
+            </>
+          )}
 
         </nav>
       </div>

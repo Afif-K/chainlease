@@ -13,6 +13,22 @@ function CreateListing({ addListing }) {
   const [propertyImage, setPropertyImage] = useState(null);
   const [loading, setLoading] = useState(false);
 
+  function convertToBase64(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+
+      reader.readAsDataURL(file);
+
+      reader.onload = () => {
+        resolve(reader.result);
+      };
+
+      reader.onerror = (error) => {
+        reject(error);
+      };
+    });
+  }
+
   async function handleSubmit(e) {
     e.preventDefault();
 
@@ -30,14 +46,14 @@ function CreateListing({ addListing }) {
     try {
       setLoading(true);
 
-      // Lease PDF → IPFS
       const ipfsHash = await uploadToIPFS(leaseFile);
 
-      // Contract deploy
       const contractAddress = await deployLeaseContract(
         rent,
         ipfsHash
       );
+
+      const imageBase64 = await convertToBase64(propertyImage);
 
       const newListing = {
         id: Date.now(),
@@ -47,19 +63,14 @@ function CreateListing({ addListing }) {
         contractAddress,
         ipfsHash,
         createdAt: new Date().toLocaleString(),
-
-        // Status
         paymentStatus: "Pending",
         leaseStatus: "Unsigned",
-
-        // Image preview
-        imageUrl: URL.createObjectURL(propertyImage),
+        imageUrl: imageBase64,
       };
 
       addListing(newListing);
 
       alert("Listing created successfully!");
-
       navigate("/listings");
 
     } catch (error) {
@@ -71,19 +82,34 @@ function CreateListing({ addListing }) {
   }
 
   return (
-    <div className="bg-white p-6 rounded-xl shadow-md max-w-2xl mx-auto">
-      <h2 className="text-2xl font-bold mb-6">
+    <div className="max-w-3xl mx-auto bg-[#fffdf9] border border-[#eadbc8] rounded-[32px] shadow-xl p-10">
+
+      <h2
+        className="mb-8 text-center"
+        style={{
+          fontFamily: "Playfair Display, serif",
+          fontSize: "42px",
+          fontWeight: "700",
+          color: "#2d1f16"
+        }}
+      >
         Create New Property Listing
       </h2>
 
-      <form onSubmit={handleSubmit} className="space-y-5">
+      <form
+        onSubmit={handleSubmit}
+        className="space-y-6"
+      >
 
         <input
           type="text"
           placeholder="Property Title"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          className="w-full border rounded-lg p-3"
+          className="w-full border border-[#d8c3a5] rounded-2xl p-4 bg-white outline-none focus:border-[#8B5E3C]"
+          style={{
+            fontFamily: "Poppins, sans-serif"
+          }}
         />
 
         <input
@@ -91,47 +117,98 @@ function CreateListing({ addListing }) {
           placeholder="Monthly Rent (BNB)"
           value={rent}
           onChange={(e) => setRent(e.target.value)}
-          className="w-full border rounded-lg p-3"
+          className="w-full border border-[#d8c3a5] rounded-2xl p-4 bg-white outline-none focus:border-[#8B5E3C]"
+          style={{
+            fontFamily: "Poppins, sans-serif"
+          }}
         />
 
         <textarea
-          rows="4"
+          rows="5"
           placeholder="Property Description"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
-          className="w-full border rounded-lg p-3"
+          className="w-full border border-[#d8c3a5] rounded-2xl p-4 bg-white outline-none focus:border-[#8B5E3C]"
+          style={{
+            fontFamily: "Poppins, sans-serif"
+          }}
         />
 
         <div>
-          <label className="font-medium">
+          <label
+            className="block mb-3 font-medium text-[#4b2e1f]"
+            style={{
+              fontFamily: "Poppins, sans-serif"
+            }}
+          >
             Upload Lease Agreement (PDF)
           </label>
-          <input
-            type="file"
-            accept=".pdf"
-            onChange={(e) => setLeaseFile(e.target.files[0])}
-            className="w-full border rounded-lg p-3 mt-2"
-          />
+
+          <label className="flex items-center justify-between border border-[#d8c3a5] rounded-2xl px-5 py-4 bg-white cursor-pointer hover:border-[#8B5E3C] transition">
+            <span
+              className="text-gray-600"
+              style={{
+                fontFamily: "Poppins, sans-serif"
+              }}
+            >
+              {leaseFile ? leaseFile.name : "Select PDF File"}
+            </span>
+
+            <span className="bg-[#8B5E3C] text-white px-5 py-2 rounded-xl text-sm">
+              Choose File
+            </span>
+
+            <input
+              type="file"
+              accept=".pdf"
+              onChange={(e) => setLeaseFile(e.target.files[0])}
+              className="hidden"
+            />
+          </label>
         </div>
 
         <div>
-          <label className="font-medium">
+          <label
+            className="block mb-3 font-medium text-[#4b2e1f]"
+            style={{
+              fontFamily: "Poppins, sans-serif"
+            }}
+          >
             Upload Property Image
           </label>
-          <input
-            type="file"
-            accept="image/*"
-            onChange={(e) => setPropertyImage(e.target.files[0])}
-            className="w-full border rounded-lg p-3 mt-2"
-          />
+
+          <label className="flex items-center justify-between border border-[#d8c3a5] rounded-2xl px-5 py-4 bg-white cursor-pointer hover:border-[#8B5E3C] transition">
+            <span
+              className="text-gray-600"
+              style={{
+                fontFamily: "Poppins, sans-serif"
+              }}
+            >
+              {propertyImage ? propertyImage.name : "Select Property Image"}
+            </span>
+
+            <span className="bg-[#8B5E3C] text-white px-5 py-2 rounded-xl text-sm">
+              Choose Image
+            </span>
+
+            <input
+              type="file"
+              accept="image/*"
+              onChange={(e) => setPropertyImage(e.target.files[0])}
+              className="hidden"
+            />
+          </label>
         </div>
 
         <button
           type="submit"
           disabled={loading}
-          className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold"
+          className="w-full bg-[#4b2e1f] hover:bg-[#2d1f16] text-white py-4 rounded-2xl text-lg font-semibold transition cursor-pointer shadow-md"
+          style={{
+            fontFamily: "Poppins, sans-serif"
+          }}
         >
-          {loading ? "Creating..." : "Create Listing"}
+          {loading ? "Creating Listing..." : "Create Listing"}
         </button>
 
       </form>

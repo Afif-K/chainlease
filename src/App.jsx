@@ -14,6 +14,7 @@ import LandlordDashboard from "./pages/LandlordDashboard";
 import PaymentHistory from "./pages/PaymentHistory";
 
 import ContractActions from "./components/ContractActions";
+import RoleSelector from "./components/RoleSelector";
 
 // Blockchain
 import {
@@ -24,6 +25,9 @@ import {
 
 function App() {
   const location = useLocation();
+
+  const userRole =
+    localStorage.getItem("userRole") || "";
 
   const [account, setAccount] = useState("");
   const [contract, setContract] = useState(null);
@@ -87,7 +91,6 @@ function App() {
 
       await payRent(contract.target);
 
-      // Save payment history
       const oldPayments = JSON.parse(
         localStorage.getItem("paymentHistory") || "[]"
       );
@@ -105,13 +108,13 @@ function App() {
         JSON.stringify([...oldPayments, newPayment])
       );
 
-      // Optional: update listing payment status
       const updatedListings = listings.map((listing) => ({
         ...listing,
         paymentStatus: "Paid"
       }));
 
       setListings(updatedListings);
+
       localStorage.setItem(
         "listings",
         JSON.stringify(updatedListings)
@@ -134,7 +137,12 @@ function App() {
 
       <div className="max-w-6xl mx-auto px-6 pt-6 pb-10">
 
-        {/* Show ContractActions only on Home Page */}
+        {/* Show Role Selector only on Home */}
+        {location.pathname === "/" && (
+          <RoleSelector />
+        )}
+
+        {/* Show ContractActions only on Home */}
         {location.pathname === "/" && (
           <ContractActions
             account={account}
@@ -162,13 +170,19 @@ function App() {
             element={<Listings listings={listings} />}
           />
 
-          {/* Create Listing */}
+          {/* Create Listing → Only Landlord */}
           <Route
             path="/create"
             element={
-              <CreateListing
-                addListing={addListing}
-              />
+              userRole === "landlord"
+                ? (
+                  <CreateListing
+                    addListing={addListing}
+                  />
+                )
+                : (
+                  <Home />
+                )
             }
           />
 
@@ -192,10 +206,14 @@ function App() {
             element={<MyLeases />}
           />
 
-          {/* Pay Rent */}
+          {/* Pay Rent → Only Tenant */}
           <Route
             path="/pay"
-            element={<PayRent />}
+            element={
+              userRole === "tenant"
+                ? <PayRent />
+                : <Home />
+            }
           />
 
           {/* Payment History */}

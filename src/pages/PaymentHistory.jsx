@@ -35,11 +35,25 @@ function PaymentHistory() {
 
             <thead className="bg-[#8B5E3C] text-white">
               <tr>
-                <th className="text-left px-6 py-4">Property</th>
-                <th className="text-left px-6 py-4">Amount</th>
-                <th className="text-left px-6 py-4">Date</th>
-                <th className="text-left px-6 py-4">Transaction Hash</th>
-                <th className="text-left px-6 py-4">Status</th>
+                <th className="text-left px-6 py-4">
+                  Property
+                </th>
+
+                <th className="text-left px-6 py-4">
+                  Amount
+                </th>
+
+                <th className="text-left px-6 py-4">
+                  Date
+                </th>
+
+                <th className="text-left px-6 py-4">
+                  Transaction Hash
+                </th>
+
+                <th className="text-left px-6 py-4">
+                  Status
+                </th>
               </tr>
             </thead>
 
@@ -49,7 +63,7 @@ function PaymentHistory() {
                   key={index}
                   className="border-b hover:bg-gray-50"
                 >
-                  <td className="px-6 py-4">
+                  <td className="px-6 py-4 font-medium">
                     {payment.property}
                   </td>
 
@@ -62,7 +76,7 @@ function PaymentHistory() {
                   </td>
 
                   <td className="px-6 py-4">
-                    <span className="text-sm break-all">
+                    <span className="text-sm break-all text-gray-600">
                       {payment.txHash}
                     </span>
                   </td>

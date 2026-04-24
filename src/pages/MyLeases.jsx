@@ -1,82 +1,163 @@
+import { useNavigate } from "react-router-dom";
+import villaImage from "../assets/images/villa.jpg";
+
 function MyLeases() {
+  const navigate = useNavigate();
+
   const listings = JSON.parse(
     localStorage.getItem("listings") || "[]"
   );
-
-  if (listings.length === 0) {
-    return (
-      <div className="text-center mt-10">
-        <h2 className="text-2xl font-bold mb-3">
-          My Leases
-        </h2>
-        <p className="text-gray-500">
-          No active leases found
-        </p>
-      </div>
-    );
-  }
 
   function openLease(ipfsHash) {
     const url = `https://gateway.pinata.cloud/ipfs/${ipfsHash}`;
     window.open(url, "_blank");
   }
 
-  return (
-    <div className="max-w-6xl mx-auto mt-8">
-      <h2 className="text-3xl font-bold mb-8">
-        My Leases Dashboard
-      </h2>
+  function goToPayRent() {
+    navigate("/pay");
+  }
 
-      <div className="grid md:grid-cols-2 gap-6">
+  if (listings.length === 0) {
+    return (
+      <div
+        className="min-h-screen bg-cover bg-center bg-no-repeat"
+        style={{
+          backgroundImage: `linear-gradient(
+            rgba(255,255,255,0.70),
+            rgba(255,255,255,0.70)
+          ), url(${villaImage})`
+        }}
+      >
+        <div className="max-w-6xl mx-auto pt-10">
 
-        {listings.map((listing) => (
-          <div
-            key={listing.id}
-            className="bg-white p-6 rounded-xl shadow-md border"
+          <h2
+            className="mb-8 text-center"
+            style={{
+              fontFamily: "Playfair Display, serif",
+              fontSize: "52px",
+              fontWeight: "700",
+              color: "#2d1f16"
+            }}
           >
-            <h3 className="text-xl font-bold mb-3">
-              {listing.title}
+            My Leases Dashboard
+          </h2>
+
+          <div className="bg-[#fffdf9] rounded-[32px] p-12 shadow-xl text-center border border-[#eadbc8]">
+            <h3
+              style={{
+                fontFamily: "Playfair Display, serif",
+                fontSize: "30px",
+                fontWeight: "700",
+                color: "#2d1f16"
+              }}
+            >
+              No Active Leases Found
             </h3>
 
-            <p className="mb-2">
-              <strong>Monthly Rent:</strong>{" "}
-              {listing.rent} BNB
+            <p className="text-gray-500 mt-4 text-lg">
+              Your signed lease agreements will appear here.
             </p>
-
-            <p className="mb-2">
-              <strong>Lease Status:</strong>{" "}
-              Signed ✅
-            </p>
-
-            <p className="mb-2">
-              <strong>Payment Status:</strong>{" "}
-              Pending ⏳
-            </p>
-
-            <p className="text-sm text-gray-500 break-all mb-4">
-              <strong>Contract:</strong>{" "}
-              {listing.contractAddress}
-            </p>
-
-            <div className="flex gap-3 flex-wrap">
-
-              <button
-                onClick={() => openLease(listing.ipfsHash)}
-                className="bg-gray-800 text-white px-4 py-2 rounded-lg"
-              >
-                View Lease
-              </button>
-
-              <button
-                className="bg-blue-600 text-white px-4 py-2 rounded-lg"
-              >
-                Pay Rent
-              </button>
-
-            </div>
           </div>
-        ))}
 
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div
+      className="min-h-screen bg-cover bg-center bg-no-repeat"
+      style={{
+        backgroundImage: `linear-gradient(
+          rgba(255,255,255,0.65),
+          rgba(255,255,255,0.65)
+        ), url(${villaImage})`
+      }}
+    >
+      <div className="max-w-6xl mx-auto pt-8 pb-12">
+
+        <h2
+          className="mb-10 text-center"
+          style={{
+            fontFamily: "Playfair Display, serif",
+            fontSize: "52px",
+            fontWeight: "700",
+            color: "#2d1f16"
+          }}
+        >
+          My Leases Dashboard
+        </h2>
+
+        <div className="grid md:grid-cols-2 gap-8">
+
+          {listings.map((listing) => (
+            <div
+              key={listing.id}
+              className="bg-[#fffdf9] p-8 rounded-[32px] shadow-xl border border-[#eadbc8]"
+            >
+              <h3
+                className="mb-6"
+                style={{
+                  fontFamily: "Playfair Display, serif",
+                  fontSize: "34px",
+                  fontWeight: "700",
+                  color: "#2d1f16"
+                }}
+              >
+                {listing.title}
+              </h3>
+
+              <div className="space-y-4">
+
+                <p className="text-lg text-[#4b2e1f]">
+                  <strong>Monthly Rent:</strong>{" "}
+                  {listing.rent} BNB
+                </p>
+
+                <p className="text-lg text-[#4b2e1f]">
+                  <strong>Lease Status:</strong>{" "}
+                  {listing.leaseStatus === "Signed"
+                    ? "Signed ✅"
+                    : "Unsigned ❌"}
+                </p>
+
+                <p className="text-lg text-[#4b2e1f]">
+                  <strong>Payment Status:</strong>{" "}
+                  {listing.paymentStatus === "Paid"
+                    ? "Paid ✅"
+                    : "Pending ⏳"}
+                </p>
+
+                <p className="text-sm text-gray-500 break-all">
+                  <strong>Contract:</strong>{" "}
+                  {listing.contractAddress}
+                </p>
+
+              </div>
+
+              <div className="flex gap-4 flex-wrap mt-8">
+
+                <button
+                  onClick={() => openLease(listing.ipfsHash)}
+                  className="bg-white border border-[#8B5E3C] text-[#4b2e1f] px-6 py-3 rounded-2xl font-medium shadow-md cursor-pointer transition duration-300 hover:scale-105 hover:shadow-lg hover:bg-[#f8f3ed]"
+                >
+                  View Lease
+                </button>
+
+                {listing.paymentStatus !== "Paid" && (
+                  <button
+                    onClick={goToPayRent}
+                    className="bg-[#8B5E3C] text-white px-6 py-3 rounded-2xl font-medium shadow-md cursor-pointer transition duration-300 hover:scale-105 hover:bg-[#6f472b] hover:shadow-lg"
+                  >
+                    Pay Rent
+                  </button>
+                )}
+
+              </div>
+            </div>
+          ))}
+
+        </div>
       </div>
     </div>
   );

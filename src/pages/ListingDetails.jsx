@@ -5,6 +5,9 @@ import { ABI } from "../blockchain/contract";
 function ListingDetails({ listings }) {
   const { id } = useParams();
 
+  const userRole =
+    localStorage.getItem("userRole") || "";
+
   const listing = listings.find(
     (item) => item.id.toString() === id
   );
@@ -31,7 +34,6 @@ function ListingDetails({ listings }) {
       const tx = await contract.signLease();
       await tx.wait();
 
-      // ✅ Update lease status in localStorage
       const savedListings = JSON.parse(
         localStorage.getItem("listings") || "[]"
       );
@@ -48,6 +50,7 @@ function ListingDetails({ listings }) {
       );
 
       alert("Lease Signed Successfully!");
+      window.location.reload();
 
     } catch (error) {
       console.error(error);
@@ -74,7 +77,6 @@ function ListingDetails({ listings }) {
 
       await tx.wait();
 
-      // ✅ Update payment status in localStorage
       const savedListings = JSON.parse(
         localStorage.getItem("listings") || "[]"
       );
@@ -90,7 +92,27 @@ function ListingDetails({ listings }) {
         JSON.stringify(updatedListings)
       );
 
+      const oldPayments = JSON.parse(
+        localStorage.getItem("paymentHistory") || "[]"
+      );
+
+      const newPayment = {
+        property: listing.title,
+        amount: `${listing.rent} BNB`,
+        date: new Date().toLocaleString(),
+        txHash: tx.hash,
+        status: "Success"
+      };
+
+      oldPayments.push(newPayment);
+
+      localStorage.setItem(
+        "paymentHistory",
+        JSON.stringify(oldPayments)
+      );
+
       alert("Rent Paid Successfully!");
+      window.location.reload();
 
     } catch (error) {
       console.error(error);
@@ -104,63 +126,145 @@ function ListingDetails({ listings }) {
   }
 
   return (
-    <div className="bg-white p-6 rounded-xl shadow-md max-w-3xl mx-auto">
-      <h2 className="text-3xl font-bold mb-4">
+    <div className="bg-[#fffdf9] p-12 rounded-[40px] shadow-xl border border-[#eadbc8] max-w-5xl mx-auto">
+
+      <h2
+        className="mb-8"
+        style={{
+          fontFamily: "Playfair, serif",
+          fontSize: "58px",
+          fontWeight: "700",
+          color: "#2d1f16",
+          letterSpacing: "0.5px"
+        }}
+      >
         {listing.title}
       </h2>
 
-      <p className="text-lg mb-2">
-        <strong>Rent:</strong> {listing.rent} BNB
+      <p
+        className="mb-8"
+        style={{
+          fontFamily: "Poppins, sans-serif",
+          fontSize: "34px",
+          fontWeight: "600",
+          color: "#8B5E3C",
+          lineHeight: "1.4"
+        }}
+      >
+        Rent: {listing.rent} BNB / month
       </p>
 
-      <p className="text-gray-600 mb-4">
+      <p
+        className="mb-10"
+        style={{
+          fontFamily: "Poppins, sans-serif",
+          fontSize: "24px",
+          color: "#5f5f5f",
+          lineHeight: "1.8"
+        }}
+      >
         {listing.description}
       </p>
 
-      <p className="mb-2">
-        <strong>Lease Status:</strong>{" "}
-        {listing.leaseStatus === "Signed"
-          ? "Signed ✅"
-          : "Unsigned ❌"}
-      </p>
+      <div className="space-y-5 mb-10">
 
-      <p className="mb-4">
-        <strong>Payment Status:</strong>{" "}
-        {listing.paymentStatus === "Paid"
-          ? "Paid ✅"
-          : "Pending ⏳"}
-      </p>
+        <p
+          style={{
+            fontFamily: "Poppins, sans-serif",
+            fontSize: "28px",
+            color: "#2d1f16"
+          }}
+        >
+          <strong>Lease Status:</strong>{" "}
+          <span className="font-medium text-[#6b4f3a]">
+            {listing.leaseStatus === "Signed"
+              ? "Signed "
+              : "Unsigned "}
+          </span>
+        </p>
 
-      <p className="text-sm text-gray-500 break-all mb-4">
-        <strong>Contract Address:</strong> {listing.contractAddress}
-      </p>
+        <p
+          style={{
+            fontFamily: "Poppins, sans-serif",
+            fontSize: "28px",
+            color: "#2d1f16"
+          }}
+        >
+          <strong>Payment Status:</strong>{" "}
+          <span className="font-medium text-[#6b4f3a]">
+            {listing.paymentStatus === "Paid"
+              ? "Paid "
+              : "Pending "}
+          </span>
+        </p>
 
-      <p className="text-sm text-gray-500 mb-6">
-        <strong>Created:</strong> {listing.createdAt}
-      </p>
+      </div>
 
-      <div className="flex flex-wrap gap-4">
+      <div className="space-y-4 mb-12">
+
+        <p
+          className="break-all"
+          style={{
+            fontFamily: "Poppins, sans-serif",
+            fontSize: "18px",
+            color: "#7a7a7a"
+          }}
+        >
+          <strong>Contract Address:</strong>{" "}
+          {listing.contractAddress}
+        </p>
+
+        <p
+          style={{
+            fontFamily: "Poppins, sans-serif",
+            fontSize: "18px",
+            color: "#7a7a7a"
+          }}
+        >
+          <strong>Created:</strong>{" "}
+          {listing.createdAt}
+        </p>
+
+      </div>
+
+      <div className="flex flex-wrap gap-6">
+
         <button
           onClick={openLeaseDocument}
-          className="bg-gray-800 text-white px-5 py-2 rounded-lg hover:bg-gray-900"
+          className="bg-[#4b2e1f] hover:bg-[#2d1f16] text-white px-10 py-5 rounded-2xl text-xl font-medium transition cursor-pointer shadow-md"
+          style={{
+            fontFamily: "Poppins, sans-serif"
+          }}
         >
           View Lease Agreement
         </button>
 
-        <button
-          onClick={handleSignLease}
-          className="bg-green-600 text-white px-5 py-2 rounded-lg hover:bg-green-700"
-        >
-          Sign Lease
-        </button>
+        {userRole === "tenant" && (
+          <>
+            <button
+              onClick={handleSignLease}
+              className="bg-[#8B5E3C] hover:bg-[#6f472b] text-white px-10 py-5 rounded-2xl text-xl font-medium transition cursor-pointer shadow-md"
+              style={{
+                fontFamily: "Poppins, sans-serif"
+              }}
+            >
+              Sign Lease
+            </button>
 
-        <button
-          onClick={handlePayRent}
-          className="bg-purple-600 text-white px-5 py-2 rounded-lg hover:bg-purple-700"
-        >
-          Pay Rent
-        </button>
+            <button
+              onClick={handlePayRent}
+              className="bg-[#d9b382] hover:bg-[#c89a63] text-[#2d1f16] px-10 py-5 rounded-2xl text-xl font-semibold transition cursor-pointer shadow-md"
+              style={{
+                fontFamily: "Poppins, sans-serif"
+              }}
+            >
+              Pay Rent
+            </button>
+          </>
+        )}
+
       </div>
+
     </div>
   );
 }

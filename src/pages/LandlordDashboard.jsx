@@ -1,5 +1,3 @@
-import { Link } from "react-router-dom";
-
 function LandlordDashboard() {
   const listings = JSON.parse(
     localStorage.getItem("listings") || "[]"
@@ -10,6 +8,32 @@ function LandlordDashboard() {
     window.open(url, "_blank");
   }
 
+  function deleteListing(id) {
+    const confirmDelete = window.confirm(
+      "Are you sure you want to delete this listing?"
+    );
+
+    if (!confirmDelete) return;
+
+    const updatedListings = listings.filter(
+      (listing) => listing.id !== id
+    );
+
+    localStorage.setItem(
+      "listings",
+      JSON.stringify(updatedListings)
+    );
+
+    alert("Listing deleted successfully!");
+    window.location.reload();
+  }
+
+  function editListing(id) {
+    alert(
+      "Edit feature will open here for Listing ID: " + id
+    );
+  }
+
   if (listings.length === 0) {
     return (
       <div className="max-w-6xl mx-auto mt-10">
@@ -17,49 +41,23 @@ function LandlordDashboard() {
         <h2
           className="mb-8 text-center"
           style={{
-            fontFamily: "Georgia, serif",
-            fontSize: "42px",
+            fontFamily: "Playfair Display, serif",
+            fontSize: "48px",
             fontWeight: "700",
             color: "#2d1f16"
           }}
         >
-          Dashboard
+          Landlord Dashboard
         </h2>
 
-        {/* Quick Actions */}
-        <div className="grid md:grid-cols-2 gap-6 mb-10">
+        <div className="bg-[#fffdf9] rounded-[32px] p-12 shadow-lg text-center border border-[#eadbc8]">
+          <h3 className="text-3xl font-semibold text-[#4b2e1f] mb-4">
+            No Properties Found
+          </h3>
 
-          <Link
-            to="/pay"
-            className="bg-[#8B5E3C] text-white p-6 rounded-3xl shadow-lg hover:bg-[#6f472b] transition"
-          >
-            <h3 className="text-2xl font-bold mb-2">
-              Pay Rent
-            </h3>
-            <p>
-              Complete monthly rent payments securely
-              using blockchain transactions.
-            </p>
-          </Link>
-
-          <Link
-            to="/payment-history"
-            className="bg-white border border-[#eadbc8] p-6 rounded-3xl shadow-lg hover:shadow-xl transition"
-          >
-            <h3 className="text-2xl font-bold mb-2 text-[#4b2e1f]">
-              Payment History
-            </h3>
-            <p className="text-gray-600">
-              View all successful rent payments,
-              transactions, and history records.
-            </p>
-          </Link>
-
-        </div>
-
-        <div className="bg-white rounded-3xl p-10 shadow-md text-center">
           <p className="text-gray-500 text-lg">
-            No properties found
+            Create your first premium property listing
+            to start managing leases.
           </p>
         </div>
 
@@ -71,95 +69,103 @@ function LandlordDashboard() {
     <div className="max-w-6xl mx-auto mt-8">
 
       <h2
-        className="mb-8"
+        className="mb-10"
         style={{
-          fontFamily: "Georgia, serif",
-          fontSize: "42px",
+          fontFamily: "Playfair Display, serif",
+          fontSize: "48px",
           fontWeight: "700",
           color: "#2d1f16"
         }}
       >
-        Dashboard
+        Landlord Dashboard
       </h2>
 
-      {/* Top Action Cards */}
-      <div className="grid md:grid-cols-2 gap-6 mb-10">
-
-        <Link
-          to="/pay"
-          className="bg-[#8B5E3C] text-white p-6 rounded-3xl shadow-lg hover:bg-[#6f472b] transition"
-        >
-          <h3 className="text-2xl font-bold mb-2">
-            Pay Rent
-          </h3>
-
-          <p>
-            Complete secure blockchain rent payments.
-          </p>
-        </Link>
-
-        <Link
-          to="/payment-history"
-          className="bg-white border border-[#eadbc8] p-6 rounded-3xl shadow-lg hover:shadow-xl transition"
-        >
-          <h3 className="text-2xl font-bold mb-2 text-[#4b2e1f]">
-            Payment History
-          </h3>
-
-          <p className="text-gray-600">
-            View all payment records and transactions.
-          </p>
-        </Link>
-
-      </div>
-
-      {/* Listings */}
-      <div className="grid md:grid-cols-2 gap-6">
+      <div className="grid md:grid-cols-2 gap-8">
 
         {listings.map((listing) => (
           <div
             key={listing.id}
-            className="bg-white p-6 rounded-3xl shadow-md border border-[#eadbc8]"
+            className="bg-[#fffdf9] p-8 rounded-[32px] shadow-lg border border-[#eadbc8]"
           >
-            <h3 className="text-2xl font-bold mb-4 text-[#2d1f16]">
+            <h3
+              className="mb-5"
+              style={{
+                fontFamily: "Playfair Display, serif",
+                fontSize: "34px",
+                fontWeight: "700",
+                color: "#2d1f16"
+              }}
+            >
               {listing.title}
             </h3>
 
-            <p className="mb-3">
-              <strong>Rent:</strong>{" "}
-              {listing.rent} BNB
-            </p>
+            <div className="space-y-3 mb-5">
 
-            <p className="mb-3">
-              <strong>Lease Status:</strong>{" "}
-              {listing.leaseStatus === "Signed"
-                ? "Signed ✅"
-                : "Unsigned ❌"}
-            </p>
+              <p className="text-lg text-[#4b2e1f]">
+                <strong>Rent:</strong>{" "}
+                {listing.rent} BNB
+              </p>
 
-            <p className="mb-3">
-              <strong>Payment Status:</strong>{" "}
-              {listing.paymentStatus === "Paid"
-                ? "Paid ✅"
-                : "Pending ⏳"}
-            </p>
+              <p className="text-lg text-[#4b2e1f]">
+                <strong>Lease Status:</strong>{" "}
+                {listing.leaseStatus === "Signed"
+                  ? "Signed ✅"
+                  : "Unsigned ❌"}
+              </p>
+
+              <p className="text-lg text-[#4b2e1f]">
+                <strong>Payment Status:</strong>{" "}
+                {listing.paymentStatus === "Paid"
+                  ? "Paid ✅"
+                  : "Pending ⏳"}
+              </p>
+
+            </div>
 
             <p className="text-sm text-gray-500 break-all mb-3">
               <strong>Contract:</strong>{" "}
               {listing.contractAddress}
             </p>
 
-            <p className="text-sm text-gray-500 mb-5">
+            <p className="text-sm text-gray-500 mb-6">
               <strong>Created:</strong>{" "}
               {listing.createdAt}
             </p>
 
-            <button
-              onClick={() => openLease(listing.ipfsHash)}
-              className="bg-[#4b2e1f] hover:bg-[#2d1f16] text-white px-5 py-3 rounded-xl transition"
-            >
-              View Lease PDF
-            </button>
+            <div className="flex flex-wrap gap-4">
+
+              <button
+                onClick={() => openLease(listing.ipfsHash)}
+                className="bg-[#4b2e1f] hover:bg-[#2d1f16] text-white px-6 py-3 rounded-2xl transition cursor-pointer shadow-md"
+              >
+                View Lease PDF
+              </button>
+
+              {listing.paymentStatus !== "Paid" ? (
+                <>
+                  <button
+                    onClick={() => editListing(listing.id)}
+                    className="bg-[#8B5E3C] hover:bg-[#6f472b] text-white px-6 py-3 rounded-2xl transition cursor-pointer shadow-md"
+                  >
+                    Edit Listing
+                  </button>
+
+                  <button
+                    onClick={() => deleteListing(listing.id)}
+                    className="bg-[#d9b382] hover:bg-[#c89a63] text-[#2d1f16] px-6 py-3 rounded-2xl transition cursor-pointer shadow-md font-semibold"
+                  >
+                    Delete Listing
+                  </button>
+                </>
+              ) : (
+                <div className="bg-[#f8f3ed] px-5 py-3 rounded-2xl border border-[#eadbc8]">
+                  <p className="text-[#6b4f3a] font-medium">
+                    Payment Completed — Editing Locked 🔒
+                  </p>
+                </div>
+              )}
+
+            </div>
           </div>
         ))}
 
