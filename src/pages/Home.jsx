@@ -2,6 +2,8 @@ import { Link } from "react-router-dom";
 import house from "../assets/images/house1.jpg";
 
 function Home() {
+  const userRole = localStorage.getItem("userRole") || "";
+
   return (
     <div className="space-y-16">
 
@@ -49,25 +51,51 @@ function Home() {
 
             <div className="flex flex-wrap gap-4">
 
-              <Link
-                to="/listings"
-                className="bg-[#8B5E3C] text-white px-8 py-4 rounded-2xl font-semibold hover:bg-[#6f472b] transition shadow-lg"
-                style={{
-                  fontFamily: "Poppins, sans-serif"
-                }}
-              >
-                Browse Properties
-              </Link>
+              {userRole === "tenant" ? (
+                <>
+                  <Link
+                    to="/listings"
+                    className="bg-[#8B5E3C] text-white px-8 py-4 rounded-2xl font-semibold hover:bg-[#6f472b] transition shadow-lg"
+                    style={{
+                      fontFamily: "Poppins, sans-serif"
+                    }}
+                  >
+                    Listings
+                  </Link>
 
-              <Link
-                to="/create"
-                className="bg-white text-[#4b2e1f] px-8 py-4 rounded-2xl font-semibold hover:bg-[#f1e8de] transition shadow-lg border border-[#d8c2aa]"
-                style={{
-                  fontFamily: "Poppins, sans-serif"
-                }}
-              >
-                List Property
-              </Link>
+                  <Link
+                    to="/my-leases"
+                    className="bg-white text-[#4b2e1f] px-8 py-4 rounded-2xl font-semibold hover:bg-[#f1e8de] transition shadow-lg border border-[#d8c2aa]"
+                    style={{
+                      fontFamily: "Poppins, sans-serif"
+                    }}
+                  >
+                    My Leases
+                  </Link>
+                </>
+              ) : (
+                <>
+                  <Link
+                    to="/create"
+                    className="bg-[#8B5E3C] text-white px-8 py-4 rounded-2xl font-semibold hover:bg-[#6f472b] transition shadow-lg"
+                    style={{
+                      fontFamily: "Poppins, sans-serif"
+                    }}
+                  >
+                    Create Listing
+                  </Link>
+
+                  <Link
+                    to="/landlord"
+                    className="bg-white text-[#4b2e1f] px-8 py-4 rounded-2xl font-semibold hover:bg-[#f1e8de] transition shadow-lg border border-[#d8c2aa]"
+                    style={{
+                      fontFamily: "Poppins, sans-serif"
+                    }}
+                  >
+                    Dashboard
+                  </Link>
+                </>
+              )}
 
             </div>
           </div>
@@ -200,15 +228,27 @@ function Home() {
           property management today.
         </p>
 
-        <Link
-          to="/create"
-          className="bg-[#e8c9a3] text-[#3b2a1f] px-8 py-4 rounded-2xl font-semibold hover:bg-[#dcb890] transition shadow-lg"
-          style={{
-            fontFamily: "Poppins, sans-serif"
-          }}
-        >
-          Get Started Today
-        </Link>
+        {userRole === "tenant" ? (
+          <Link
+            to="/payment-history"
+            className="bg-[#e8c9a3] text-[#3b2a1f] px-8 py-4 rounded-2xl font-semibold hover:bg-[#dcb890] transition shadow-lg"
+            style={{
+              fontFamily: "Poppins, sans-serif"
+            }}
+          >
+            Payment History
+          </Link>
+        ) : (
+          <Link
+            to="/listings"
+            className="bg-[#e8c9a3] text-[#3b2a1f] px-8 py-4 rounded-2xl font-semibold hover:bg-[#dcb890] transition shadow-lg"
+            style={{
+              fontFamily: "Poppins, sans-serif"
+            }}
+          >
+            Listings
+          </Link>
+        )}
 
       </section>
 

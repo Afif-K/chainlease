@@ -89,11 +89,11 @@ function ContractActions({
             Lease Status :
             {isSigned ? (
               <span className="text-green-300 font-semibold ml-2">
-                Signed ✓
+                Signed 
               </span>
             ) : (
               <span className="text-[#ffb4a2] font-semibold ml-2">
-                Not Signed ✕
+                Not Signed 
               </span>
             )}
           </p>
