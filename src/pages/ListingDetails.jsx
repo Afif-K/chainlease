@@ -131,7 +131,7 @@ function ListingDetails({ listings }) {
       <h2
         className="mb-8"
         style={{
-          fontFamily: "Playfair, serif",
+          fontFamily: "Playfair Display, serif",
           fontSize: "58px",
           fontWeight: "700",
           color: "#2d1f16",
@@ -178,8 +178,8 @@ function ListingDetails({ listings }) {
           <strong>Lease Status:</strong>{" "}
           <span className="font-medium text-[#6b4f3a]">
             {listing.leaseStatus === "Signed"
-              ? "Signed "
-              : "Unsigned "}
+              ? "Signed"
+              : "Unsigned"}
           </span>
         </p>
 
@@ -193,8 +193,8 @@ function ListingDetails({ listings }) {
           <strong>Payment Status:</strong>{" "}
           <span className="font-medium text-[#6b4f3a]">
             {listing.paymentStatus === "Paid"
-              ? "Paid "
-              : "Pending "}
+              ? "Paid"
+              : "Pending"}
           </span>
         </p>
 
@@ -241,24 +241,47 @@ function ListingDetails({ listings }) {
 
         {userRole === "tenant" && (
           <>
-            <button
-              onClick={handleSignLease}
-              className="bg-[#8B5E3C] hover:bg-[#6f472b] text-white px-10 py-5 rounded-2xl text-xl font-medium transition cursor-pointer shadow-md"
-              style={{
-                fontFamily: "Poppins, sans-serif"
-              }}
-            >
-              Sign Lease
-            </button>
+            {listing.leaseStatus === "Signed" ? (
+              <button
+                disabled
+                className="bg-gray-200 text-gray-500 px-10 py-5 rounded-2xl text-xl font-medium cursor-not-allowed shadow-sm"
+                style={{
+                  fontFamily: "Poppins, sans-serif"
+                }}
+              >
+                Lease Signed
+              </button>
+            ) : (
+              <button
+                onClick={handleSignLease}
+                className="bg-[#8B5E3C] hover:bg-[#6f472b] text-white px-10 py-5 rounded-2xl text-xl font-medium transition cursor-pointer shadow-md"
+                style={{
+                  fontFamily: "Poppins, sans-serif"
+                }}
+              >
+                Sign Lease
+              </button>
+            )}
 
             <button
               onClick={handlePayRent}
-              className="bg-[#d9b382] hover:bg-[#c89a63] text-[#2d1f16] px-10 py-5 rounded-2xl text-xl font-semibold transition cursor-pointer shadow-md"
+              disabled={
+                listing.leaseStatus !== "Signed" ||
+                listing.paymentStatus === "Paid"
+              }
+              className={`px-10 py-5 rounded-2xl text-xl font-semibold shadow-md transition ${
+                listing.leaseStatus !== "Signed" ||
+                listing.paymentStatus === "Paid"
+                  ? "bg-gray-200 text-gray-500 cursor-not-allowed"
+                  : "bg-[#d9b382] hover:bg-[#c89a63] text-[#2d1f16] cursor-pointer"
+              }`}
               style={{
                 fontFamily: "Poppins, sans-serif"
               }}
             >
-              Pay Rent
+              {listing.paymentStatus === "Paid"
+                ? "Rent Paid"
+                : "Pay Rent"}
             </button>
           </>
         )}
