@@ -29,15 +29,12 @@ function LandlordDashboard() {
   }
 
   function editListing(id) {
-    alert(
-      "Edit feature will open here for Listing ID: " + id
-    );
-  }
+  window.location.href = `/create?id=${id}`;
+}
 
   if (listings.length === 0) {
     return (
       <div className="max-w-6xl mx-auto mt-10">
-
         <h2
           className="mb-8 text-center"
           style={{
@@ -60,14 +57,12 @@ function LandlordDashboard() {
             to start managing leases.
           </p>
         </div>
-
       </div>
     );
   }
 
   return (
     <div className="max-w-6xl mx-auto mt-8">
-
       <h2
         className="mb-10"
         style={{
@@ -81,7 +76,6 @@ function LandlordDashboard() {
       </h2>
 
       <div className="grid md:grid-cols-2 gap-8">
-
         {listings.map((listing) => (
           <div
             key={listing.id}
@@ -100,10 +94,8 @@ function LandlordDashboard() {
             </h3>
 
             <div className="space-y-3 mb-5">
-
               <p className="text-lg text-[#4b2e1f]">
-                <strong>Rent:</strong>{" "}
-                {listing.rent} BNB
+                <strong>Rent:</strong> {listing.rent} BNB
               </p>
 
               <p className="text-lg text-[#4b2e1f]">
@@ -119,21 +111,17 @@ function LandlordDashboard() {
                   ? "Paid ✅"
                   : "Pending ⏳"}
               </p>
-
             </div>
 
             <p className="text-sm text-gray-500 break-all mb-3">
-              <strong>Contract:</strong>{" "}
-              {listing.contractAddress}
+              <strong>Contract:</strong> {listing.contractAddress}
             </p>
 
             <p className="text-sm text-gray-500 mb-6">
-              <strong>Created:</strong>{" "}
-              {listing.createdAt}
+              <strong>Created:</strong> {listing.createdAt}
             </p>
 
             <div className="flex flex-wrap gap-4">
-
               <button
                 onClick={() => openLease(listing.ipfsHash)}
                 className="bg-[#4b2e1f] hover:bg-[#2d1f16] text-white px-6 py-3 rounded-2xl transition cursor-pointer shadow-md"
@@ -164,13 +152,10 @@ function LandlordDashboard() {
                   </p>
                 </div>
               )}
-
             </div>
           </div>
         ))}
-
       </div>
-
     </div>
   );
 }

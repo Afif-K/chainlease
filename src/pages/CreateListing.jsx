@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { deployLeaseContract } from "../blockchain/contract";
 import { uploadToIPFS } from "../blockchain/ipfs";
 import { useNavigate } from "react-router-dom";
@@ -12,6 +12,28 @@ function CreateListing({ addListing }) {
   const [leaseFile, setLeaseFile] = useState(null);
   const [propertyImage, setPropertyImage] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [editingId, setEditingId] = useState(null);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const id = params.get("id");
+
+    if (id) {
+      const listings =
+        JSON.parse(localStorage.getItem("listings")) || [];
+
+      const existingListing = listings.find(
+        (item) => item.id.toString() === id
+      );
+
+      if (existingListing) {
+        setTitle(existingListing.title);
+        setRent(existingListing.rent);
+        setDescription(existingListing.description);
+        setEditingId(id);
+      }
+    }
+  }, []);
 
   function convertToBase64(file) {
     return new Promise((resolve, reject) => {
@@ -32,19 +54,64 @@ function CreateListing({ addListing }) {
   async function handleSubmit(e) {
     e.preventDefault();
 
-    if (
-      !title ||
-      !rent ||
-      !description ||
-      !leaseFile ||
-      !propertyImage
-    ) {
-      alert("Please fill all fields and upload files");
+    if (!title || !rent || !description) {
+      alert("Please fill all required fields");
       return;
     }
 
     try {
       setLoading(true);
+
+      if (editingId) {
+        const listings =
+          JSON.parse(localStorage.getItem("listings")) || [];
+
+        const oldListing = listings.find(
+          (item) => item.id.toString() === editingId
+        );
+
+        let updatedImage;
+        let updatedIpfsHash;
+
+        if (propertyImage) {
+          updatedImage = await convertToBase64(propertyImage);
+        } else {
+          updatedImage = oldListing.imageUrl;
+        }
+
+        if (leaseFile) {
+          updatedIpfsHash = await uploadToIPFS(leaseFile);
+        } else {
+          updatedIpfsHash = oldListing.ipfsHash;
+        }
+
+        const updatedListings = listings.map((item) =>
+          item.id.toString() === editingId
+            ? {
+                ...item,
+                title,
+                rent,
+                description,
+                imageUrl: updatedImage,
+                ipfsHash: updatedIpfsHash
+              }
+            : item
+        );
+
+        localStorage.setItem(
+          "listings",
+          JSON.stringify(updatedListings)
+        );
+
+        alert("Listing updated successfully!");
+        navigate("/landlord");
+        return;
+      }
+
+      if (!leaseFile || !propertyImage) {
+        alert("Please upload lease file and property image");
+        return;
+      }
 
       const ipfsHash = await uploadToIPFS(leaseFile);
 
@@ -83,7 +150,6 @@ function CreateListing({ addListing }) {
 
   return (
     <div className="max-w-3xl mx-auto bg-[#fffdf9] border border-[#eadbc8] rounded-[32px] shadow-xl p-10">
-
       <h2
         className="mb-8 text-center"
         style={{
@@ -93,23 +159,21 @@ function CreateListing({ addListing }) {
           color: "#2d1f16"
         }}
       >
-        Create New Property Listing
+        {editingId
+          ? "Edit Property Listing"
+          : "Create New Property Listing"}
       </h2>
 
       <form
         onSubmit={handleSubmit}
         className="space-y-6"
       >
-
         <input
           type="text"
           placeholder="Property Title"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           className="w-full border border-[#d8c3a5] rounded-2xl p-4 bg-white outline-none focus:border-[#8B5E3C]"
-          style={{
-            fontFamily: "Poppins, sans-serif"
-          }}
         />
 
         <input
@@ -118,9 +182,6 @@ function CreateListing({ addListing }) {
           value={rent}
           onChange={(e) => setRent(e.target.value)}
           className="w-full border border-[#d8c3a5] rounded-2xl p-4 bg-white outline-none focus:border-[#8B5E3C]"
-          style={{
-            fontFamily: "Poppins, sans-serif"
-          }}
         />
 
         <textarea
@@ -129,28 +190,15 @@ function CreateListing({ addListing }) {
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           className="w-full border border-[#d8c3a5] rounded-2xl p-4 bg-white outline-none focus:border-[#8B5E3C]"
-          style={{
-            fontFamily: "Poppins, sans-serif"
-          }}
         />
 
         <div>
-          <label
-            className="block mb-3 font-medium text-[#4b2e1f]"
-            style={{
-              fontFamily: "Poppins, sans-serif"
-            }}
-          >
+          <label className="block mb-3 font-medium text-[#4b2e1f]">
             Upload Lease Agreement (PDF)
           </label>
 
           <label className="flex items-center justify-between border border-[#d8c3a5] rounded-2xl px-5 py-4 bg-white cursor-pointer hover:border-[#8B5E3C] transition">
-            <span
-              className="text-gray-600"
-              style={{
-                fontFamily: "Poppins, sans-serif"
-              }}
-            >
+            <span className="text-gray-600">
               {leaseFile ? leaseFile.name : "Select PDF File"}
             </span>
 
@@ -168,23 +216,15 @@ function CreateListing({ addListing }) {
         </div>
 
         <div>
-          <label
-            className="block mb-3 font-medium text-[#4b2e1f]"
-            style={{
-              fontFamily: "Poppins, sans-serif"
-            }}
-          >
+          <label className="block mb-3 font-medium text-[#4b2e1f]">
             Upload Property Image
           </label>
 
           <label className="flex items-center justify-between border border-[#d8c3a5] rounded-2xl px-5 py-4 bg-white cursor-pointer hover:border-[#8B5E3C] transition">
-            <span
-              className="text-gray-600"
-              style={{
-                fontFamily: "Poppins, sans-serif"
-              }}
-            >
-              {propertyImage ? propertyImage.name : "Select Property Image"}
+            <span className="text-gray-600">
+              {propertyImage
+                ? propertyImage.name
+                : "Select Property Image"}
             </span>
 
             <span className="bg-[#8B5E3C] text-white px-5 py-2 rounded-xl text-sm">
@@ -204,13 +244,13 @@ function CreateListing({ addListing }) {
           type="submit"
           disabled={loading}
           className="w-full bg-[#4b2e1f] hover:bg-[#2d1f16] text-white py-4 rounded-2xl text-lg font-semibold transition cursor-pointer shadow-md"
-          style={{
-            fontFamily: "Poppins, sans-serif"
-          }}
         >
-          {loading ? "Creating Listing..." : "Create Listing"}
+          {loading
+            ? "Processing..."
+            : editingId
+            ? "Update Listing"
+            : "Create Listing"}
         </button>
-
       </form>
     </div>
   );
