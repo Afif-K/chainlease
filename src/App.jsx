@@ -48,7 +48,6 @@ function App() {
     localStorage.setItem("listings", JSON.stringify(listings));
   }, [listings]);
 
-  // Connect Wallet
   async function handleConnect() {
     try {
       const data = await connectWallet();
@@ -63,14 +62,20 @@ function App() {
     }
   }
 
-  // Sign Lease
+  function handleDisconnect() {
+    setAccount("");
+    setContract(null);
+    setIsSigned(false);
+    setRent("");
+  }
+
   async function handleSign() {
     try {
       if (!contract) return alert("Connect wallet first");
 
       setLoading(true);
 
-      await signLease(contract.target);
+      await signLease(await contract.getAddress());
 
       setIsSigned(true);
       alert("Lease Signed!");
@@ -82,14 +87,13 @@ function App() {
     }
   }
 
-  // Pay Rent + Save Payment History
   async function handlePay() {
     try {
       if (!contract) return alert("Connect wallet first");
 
       setLoading(true);
 
-      await payRent(contract.target);
+      await payRent(await contract.getAddress());
 
       const oldPayments = JSON.parse(
         localStorage.getItem("paymentHistory") || "[]"
@@ -132,21 +136,19 @@ function App() {
   return (
     <div className="min-h-screen bg-gray-100">
 
-      {/* Premium Navbar */}
       <Navbar />
 
       <div className="max-w-6xl mx-auto px-6 pt-6 pb-10">
 
-        {/* Show Role Selector only on Home */}
         {location.pathname === "/" && (
           <RoleSelector />
         )}
 
-        {/* Show ContractActions only on Home */}
         {location.pathname === "/" && (
           <ContractActions
             account={account}
             connectWallet={handleConnect}
+            disconnectWallet={handleDisconnect}
             rent={rent}
             isSigned={isSigned}
             signLease={handleSign}
@@ -155,22 +157,18 @@ function App() {
           />
         )}
 
-        {/* Routes */}
         <Routes>
 
-          {/* Home */}
           <Route
             path="/"
             element={<Home />}
           />
 
-          {/* Listings */}
           <Route
             path="/listings"
             element={<Listings listings={listings} />}
           />
 
-          {/* Create Listing → Only Landlord */}
           <Route
             path="/create"
             element={
@@ -186,7 +184,6 @@ function App() {
             }
           />
 
-          {/* Listing Details */}
           <Route
             path="/listing/:id"
             element={
@@ -200,13 +197,11 @@ function App() {
             }
           />
 
-          {/* My Leases */}
           <Route
             path="/my-leases"
             element={<MyLeases />}
           />
 
-          {/* Pay Rent → Only Tenant */}
           <Route
             path="/pay"
             element={
@@ -216,13 +211,11 @@ function App() {
             }
           />
 
-          {/* Payment History */}
           <Route
             path="/payment-history"
             element={<PaymentHistory />}
           />
 
-          {/* Dashboard */}
           <Route
             path="/landlord"
             element={<LandlordDashboard />}
